@@ -1,8 +1,13 @@
 import src.errors
+import src.shell
 from pathlib import Path
 
-def execute(arguments, shell):
-    """Выполнение самой команды"""
+def execute(arguments: list[str], shell: src.shell.ShellCore) -> str:
+    """
+    Меняет текущую директорию (переменную pwd)
+    :input_expression: директорию, в которую нужно войти
+    :return: возвращает пустую строку
+    """
     if len(arguments) != 1:
         raise src.errors.WrongArguments("cd: Неправильные аргументы")
 

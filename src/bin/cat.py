@@ -3,8 +3,12 @@ import src.shell
 from pathlib import Path
 
 
-def execute(arguments, shell):
-    """Выполнение самой команды"""
+def execute(arguments: list[str], shell: src.shell.ShellCore) -> str:
+    """
+    Прочитать содержимое файла
+    :input_expression: Файл, содержимое которого нужно вывести
+    :return: Возвращает содержимое файла
+    """
     if len(arguments) != 1:
         raise src.errors.WrongArguments("cat: Неправильные аргументы")
 
@@ -22,6 +26,6 @@ def execute(arguments, shell):
                 return res
             except UnicodeDecodeError:
                 continue
-        return src.errors.UnknownError("Не удается правильно кодировать файл (я без понятия что ты там открыть захотел, но открой как-то иначе:) )")
+        raise src.errors.UnknownError("Не удается правильно кодировать файл (я без понятия что ты там открыть захотел, но открой как-то иначе:) )")
     else:
         raise src.errors.UndefinedFile(f"cat: Неизвестный файл {arguments[0]}")
