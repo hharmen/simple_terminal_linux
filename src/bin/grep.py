@@ -9,7 +9,7 @@ def execute(arguments: list[str], shell: src.shell.ShellCore) -> str:
     :input_expression: шаблон и путь
     :return: вывод совпадений (имя файла: номер строки) текст)
     """
-    if len(arguments) < 2:
+    if not arguments:
         raise src.errors.WrongArguments("Неправильные аргументы: grep [-r] [-i] <pattern> <path to file/dir>")
 
     recursive = False
@@ -21,12 +21,17 @@ def execute(arguments: list[str], shell: src.shell.ShellCore) -> str:
         ignore_reg = True
         arguments.remove("-i")
 
+    if len(arguments) == 1:
+        arguments.append(shell.pwd)
+    elif len(arguments) > 2:
+        raise src.errors.WrongArguments("Неправильные аргументы: grep [-r] [-i] <pattern> <path to file/dir>")
+
     pattern, path = arguments[0], shell.resolve_path(arguments[1])
 
     regex = re.compile(pattern, re.IGNORECASE if ignore_reg else 0)
     res = []
 
-    def search_file(file_path):
+    def search_file(file_path: str) -> None:
         try:
             with open(file_path, "r", errors="ignore") as f:
                 for num, line in enumerate(f, 1):

@@ -9,7 +9,7 @@ def execute(arguments: list[str], shell: src.shell.ShellCore) -> str:
     :return: пустая строка
     """
 
-    if not arguments:
+    if arguments:
         raise src.errors.WrongArguments("ДА НЕ НУЖНЫ ТУТ АРГУМЕНТЫ, ПРОСТО НАПИШИ undo")
 
     shell_log = open(shell.shell_log_path, "r")

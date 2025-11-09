@@ -31,19 +31,21 @@ def execute(arguments: list[str], shell: src.shell.ShellCore) -> str:
         if not destination.endswith("/"):
             destination += "/" + Path(source).name
 
+
         try:
             shutil.copytree(source, destination, dirs_exist_ok=True)
+            print(destination)
             shell.undo_stack.append({
                 "command_name" : "cp",
-                "command_args" : arguments,
+                "destination" : destination,
             })
 
         except PermissionError:
             raise src.errors.PermissError("Недостаточно прав")
         except IsADirectoryError:
-            raise src.errors.UnknownError("ЭТО ФАЙЛ, ДЛЯ КОМПИРОВАНИЯ ФАЙЛОВ НЕ НУЖЕН -r")
+            raise src.errors.WrongArguments("ЭТО ФАЙЛ, ДЛЯ КОПИРОВАНИЯ ФАЙЛОВ НЕ НУЖЕН -r")
         except FileNotFoundError:
-            raise src.errors.UndefinedFile(f"Такого файла не сушествует {source}")
+            raise src.errors.UndefinedFile("Такого файла или пути куда хочешь скопировать не сушествует")
         except Exception as err:
             raise src.errors.UnknownError(f"{err}")
     else:
@@ -55,19 +57,23 @@ def execute(arguments: list[str], shell: src.shell.ShellCore) -> str:
 
         if source == destination:
             raise src.errors.UnknownError("Ты пытаешься скопировать файл в себя же")
-
         try:
             shutil.copy2(source, destination)
+            if os.path.isdir(destination):
+                if not destination.endswith("/"):
+                    destination += "/"
+                destination += os.path.basename(source)
+            print(destination)
             shell.undo_stack.append({
                 "command_name" : "cp",
-                "command_args" : arguments,
+                "destination" : destination,
             })
         except PermissionError:
             raise src.errors.PermissError("Недостаточно прав")
         except IsADirectoryError:
-            raise src.errors.UnknownError("ЭТО ДИРЕКТОРИЯ, ДЛЯ КОМПИРОВАНИЯ ДИРЕКТОРИЙ НУЖЕН -r")
+            raise src.errors.WrongArguments("ЭТО ДИРЕКТОРИЯ, ДЛЯ КОПИРОВАНИЯ ДИРЕКТОРИЙ НУЖЕН -r")
         except FileNotFoundError:
-            raise src.errors.UndefinedFile(f"Такого файла не сушествует {source}")
+            raise src.errors.UndefinedFile("Такого файла или пути куда хочешь скопировать не сушествует")
         except Exception as err:
             raise src.errors.UnknownError(f"{err}")
     return ""
@@ -85,28 +91,19 @@ def undo(shell: src.shell.ShellCore) -> str:
     if command != "cp":
         raise src.errors.UnknownError("Тут явно что-то пошло не так, почему-то стек последних команд достал не ту команду")
 
-    arguments = last_command_info["command_args"]
+    destiantion = last_command_info["destination"]
 
-    destiantion = shell.resolve_path(arguments[1])
-    source = shell.resolve_path(arguments[0])
-
-    if not destiantion.endswith("/"):
-        destiantion += "/"
-    if source.endswith("/"):
-        source = source[:-1]
-    destiantion += Path(source).name
-
-    if not Path(destiantion).exists():
+    if not Path(destiantion).exists(): #type: ignore
         raise src.errors.UndefinedFile("Куда-то подевался твой скопированный файл")
 
-    if Path(destiantion).is_dir():
+    if Path(destiantion).is_dir(): #type: ignore
         try:
-            shutil.rmtree(destiantion)
+            shutil.rmtree(destiantion) #type: ignore
         except Exception as err:
             raise src.errors.UnknownError(err)
     else:
         try:
-            os.remove(destiantion)
+            os.remove(destiantion) #type: ignore
         except Exception as err:
             raise src.errors.UnknownError(err)
     return ""

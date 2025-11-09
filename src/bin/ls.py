@@ -61,11 +61,11 @@ def execute(arguments: list[str], shell: src.shell.ShellCore) -> str:
             raise src.errors.UndefinedFile(f"Не найден каталог {path}")
 
     else:
-        raise src.errors.WrongArguments("Неправильные аргументы: ls <path to dir> | ls")
+        raise src.errors.WrongArguments("Неправильные аргументы: ls [-l] <path to dir>")
 
 
 
-def get_permissions(path):
+def get_permissions(path: str) -> str:
     """Получить полную информацию о правах доступа для ls -l (помучиться пришлось)"""
     stat_info = os.stat(path)
     mode = stat_info.st_mode

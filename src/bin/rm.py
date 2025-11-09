@@ -11,13 +11,16 @@ def execute(arguments: list[str], shell: src.shell.ShellCore) -> str:
     :return: Пустая строка
     """
 
+    if not arguments:
+        raise src.errors.WrongArguments("Неправильные аргументы: rm [-r] <path to file/dir> введи хотя бы что ты хочешь удалить ")
+
 
 
     if "-r" in arguments:
 
         arguments.remove("-r")
 
-        if not arguments:
+        if len(arguments) != 1:
             raise src.errors.WrongArguments("Неправильные аргументы: rm [-r] <path to file/dir>")
 
         rm_path = shell.resolve_path(arguments[0])
@@ -39,6 +42,10 @@ def execute(arguments: list[str], shell: src.shell.ShellCore) -> str:
 
 
     else:
+
+        if len(arguments) != 1:
+            raise src.errors.WrongArguments("Неправильные аргументы: rm [-r] <path to file/dir>")
+
         rm_path = shell.resolve_path(arguments[0])
 
         if not os.path.exists(rm_path):

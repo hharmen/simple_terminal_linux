@@ -11,11 +11,12 @@ import shutil
 class ShellCore():
     """Класс самой оболочки"""
 
-    def __init__(self) -> None:
+    def __init__(self, root: str | None = None) -> None:
         """Иницаилизация"""
         self.pwd = os.getcwd()
         self.commands: dict[str, types.ModuleType] = {}
-        self.trash_path: str = os.path.dirname(os.path.realpath(__file__))+"/.trash/"
+        self.root = root if root else os.path.dirname(os.path.realpath(__file__))
+        self.trash_path: str = self.root+"/.trash/"
         self.undo_stack: list[dict[str, str | list]] = []
 
 
@@ -26,7 +27,7 @@ class ShellCore():
 
     def setup_history(self) -> None:
         """Настройка файла history"""
-        self.history_path: str = os.path.dirname(os.path.realpath(__file__))+"/.history"
+        self.history_path: str = self.root+"/.history"
 
         if os.path.islink(self.history_path): #Руки оторвать тому, кто это сделал :)
             os.remove(self.history_path)
@@ -38,12 +39,18 @@ class ShellCore():
 
     def setup_logging(self) -> None:
         """Настройка логгирования"""
-        self.shell_log_path: str = os.path.dirname(os.path.realpath(__file__))+"/shell.log"
+        self.shell_log_path: str = self.root+"/shell.log"
+
+        if os.path.islink(self.shell_log_path): #Руки оторвать тому, кто это сделал :)
+            os.remove(self.shell_log_path)
+        elif os.path.isdir(self.shell_log_path): #В таком случае вдовйне надо оторвать :)
+            shutil.rmtree(self.shell_log_path)
+
         logging.basicConfig(filename=self.shell_log_path, level=logging.INFO, datefmt="%Y-%m-%d %H:%M:%S", format='[%(asctime)s] %(message)s')
 
     def load_commands(self) -> None:
         """Загрузка команд из папки bin"""
-        bin_dir = os.path.dirname(__file__)+'/bin'
+        bin_dir = self.root+'/bin'
 
         for filename in os.listdir(bin_dir):
             if filename.endswith('.py') and filename != '__init__.py':
@@ -53,7 +60,7 @@ class ShellCore():
                 # Почему-то pre-commit жалуется на это, считает что нет util модуля у importlib, хотя он есть и я спокойно использую чисто со встроенными библиотеками, пришлось добавить type ignore
                 spec = importlib.util.spec_from_file_location(command_name, file_path) # type: ignore
                 module = importlib.util.module_from_spec(spec) # type: ignore
-                spec.loader.exec_module(module)
+                spec.loader.exec_module(module) # type: ignore
 
 
                 self.commands[command_name] = module
@@ -94,7 +101,7 @@ class ShellCore():
         if command in self.commands:
             try:
                 res = self.commands[command].execute(args, self)
-                return res
+                return res # type: ignore
             except Exception as err:
                 raise err
         else:

@@ -11,7 +11,7 @@ def execute(arguments: list[str], shell: src.shell.ShellCore) -> str:
     :return: Пустая строка
     """
     if len(arguments) != 2:
-        raise src.errors.WrongArguments("Неправильные аргументы")
+        raise src.errors.WrongArguments("mv <path to file/dir> <path to file/dir>")
 
     source = shell.resolve_path(arguments[0])
     destination = shell.resolve_path(arguments[1])

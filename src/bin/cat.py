@@ -13,7 +13,6 @@ def execute(arguments: list[str], shell: src.shell.ShellCore) -> str:
         raise src.errors.WrongArguments("Неправильные аргументы: cat <path to file>")
 
     path = shell.resolve_path(arguments[0])
-    print(path)
     if Path(path).is_dir():
         raise src.errors.WrongArguments("Нельзя вывести директорию")
     encodings = ['utf-8', 'cp1251', 'iso-8859-1', 'koi8-r', 'utf-16'] #Пытаемся использоватьв все возможные кодировки

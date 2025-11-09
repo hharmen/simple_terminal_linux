@@ -9,7 +9,7 @@ def execute(arguments: list[str], shell: src.shell.ShellCore) -> str:
     :return: возвращает пустую строку
     """
     if len(arguments) != 1:
-        raise src.errors.WrongArguments("Неправильные аргументы")
+        raise src.errors.WrongArguments("Неправильные аргументы: cd <path>")
 
     path = shell.resolve_path(arguments[0])
     if Path(path).is_dir():
