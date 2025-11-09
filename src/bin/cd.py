@@ -9,7 +9,7 @@ def execute(arguments: list[str], shell: src.shell.ShellCore) -> str:
     :return: возвращает пустую строку
     """
     if len(arguments) != 1:
-        raise src.errors.WrongArguments("cd: Неправильные аргументы")
+        raise src.errors.WrongArguments("Неправильные аргументы")
 
     path = shell.resolve_path(arguments[0])
     if Path(path).is_dir():
@@ -17,6 +17,6 @@ def execute(arguments: list[str], shell: src.shell.ShellCore) -> str:
         return ""
 
     if Path(path).is_file():
-        raise src.errors.WrongArguments("cd: Это не каталог")
+        raise src.errors.WrongArguments("Это не каталог")
 
-    raise src.errors.UndefinedFile(f"cd: каталог {arguments[0]} не найден")
+    raise src.errors.UndefinedFile(f"каталог {arguments[0]} не найден")

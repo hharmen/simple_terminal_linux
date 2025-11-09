@@ -14,7 +14,7 @@ def execute(arguments: list[str], shell: src.shell.ShellCore) -> str:
     lines_data = [] # при -l понадобиться
     if len(arguments) == 0:
         path = shell.pwd
-        return("\t".join(os.listdir(path)))
+        return("\n".join(os.listdir(path)))
 
     elif "-l" in arguments and len(arguments) <= 2:
         if len(arguments) == 2:
@@ -54,14 +54,14 @@ def execute(arguments: list[str], shell: src.shell.ShellCore) -> str:
     elif len(arguments) == 1:
         path = shell.resolve_path(arguments[0])
         try:
-            return("\t".join(os.listdir(path)))
+            return("\n".join(os.listdir(path)))
         except NotADirectoryError:
             return Path(path).name
         except FileNotFoundError:
-            raise src.errors.UndefinedFile(f"ls: Не найден каталог {path}")
+            raise src.errors.UndefinedFile(f"Не найден каталог {path}")
 
     else:
-        raise src.errors.WrongArguments("ls: Неправильные аргументы")
+        raise src.errors.WrongArguments("Неправильные аргументы: ls <path to dir> | ls")
 
 
 
